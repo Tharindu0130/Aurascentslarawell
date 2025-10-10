@@ -1,4 +1,4 @@
-package com.example.aurascents.ui.screens
+    package com.example.aurascents.ui.screens
 
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
@@ -43,7 +43,7 @@ fun SplashScreen(
         animationSpec = tween(1000),
         label = "scale_anim"
     )
-    
+
     LaunchedEffect(Unit) {
         Log.d("AuraScents", "SplashScreen LaunchedEffect started")
         startAnimation = true
@@ -52,7 +52,7 @@ fun SplashScreen(
         Log.d("AuraScents", "SplashScreen delay completed, navigating to login")
         onNavigateToLogin()
     }
-    
+
     Log.d("AuraScents", "SplashScreen: About to render Box")
     Box(
         modifier = modifier
