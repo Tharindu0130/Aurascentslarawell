@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aurascents.R
 import com.example.aurascents.data.sampleProducts
+import com.example.aurascents.data.WishlistState
 import com.example.aurascents.ui.components.ProductCard
 import com.example.aurascents.ui.theme.*
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -41,6 +42,9 @@ fun HomeScreen(
 ) {
     val featuredProducts = sampleProducts.take(3)
     val popularProducts = sampleProducts.drop(3)
+    
+    // Use shared wishlist state
+    val wishlistItems by WishlistState.wishlistItems
 
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val landscape = maxWidth > maxHeight
@@ -144,8 +148,11 @@ fun HomeScreen(
                         ProductCard(
                             product = product,
                             onProductClick = onProductClick,
-                            onWishlistToggle = { /* Handle wishlist */ },
-                            isInWishlist = false,
+                            onWishlistToggle = { productId ->
+                                // Toggle wishlist item
+                                WishlistState.toggleWishlistItem(productId)
+                            },
+                            isInWishlist = WishlistState.isProductInWishlist(product.id),
                             modifier = if (landscape) Modifier.width(200.dp) else Modifier.width(160.dp)
                         )
                     }
@@ -181,8 +188,11 @@ fun HomeScreen(
                         ProductCard(
                             product = product,
                             onProductClick = onProductClick,
-                            onWishlistToggle = { /* Handle wishlist */ },
-                            isInWishlist = false,
+                            onWishlistToggle = { productId ->
+                                // Toggle wishlist item
+                                WishlistState.toggleWishlistItem(productId)
+                            },
+                            isInWishlist = WishlistState.isProductInWishlist(product.id),
                             modifier = if (landscape) Modifier.width(260.dp) else Modifier.width(220.dp)
                         )
                     }

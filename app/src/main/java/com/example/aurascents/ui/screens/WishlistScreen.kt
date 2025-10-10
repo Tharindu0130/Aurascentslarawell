@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.aurascents.data.sampleWishlist
+import com.example.aurascents.data.WishlistState
 import com.example.aurascents.ui.components.ProductCard
 import com.example.aurascents.ui.theme.*
 
@@ -31,7 +31,7 @@ fun WishlistScreen(
     onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var wishlistItems by remember { mutableStateOf(sampleWishlist) }
+    val wishlistItems by WishlistState.wishlistItems
 
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val landscape = maxWidth > maxHeight
@@ -108,8 +108,7 @@ fun WishlistScreen(
                                 product = wishlistItem.product,
                                 onProductClick = onProductClick,
                                 onWishlistToggle = { productId ->
-                                    wishlistItems =
-                                        wishlistItems.filter { it.product.id != productId }
+                                    WishlistState.removeFromWishlist(productId)
                                 },
                                 isInWishlist = true,
                                 modifier = Modifier.fillMaxWidth()
@@ -128,8 +127,7 @@ fun WishlistScreen(
                                 product = wishlistItem.product,
                                 onProductClick = onProductClick,
                                 onWishlistToggle = { productId ->
-                                    wishlistItems =
-                                        wishlistItems.filter { it.product.id != productId }
+                                    WishlistState.removeFromWishlist(productId)
                                 },
                                 isInWishlist = true,
                                 modifier = Modifier.fillMaxWidth()

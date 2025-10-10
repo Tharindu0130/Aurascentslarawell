@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aurascents.data.sampleProducts
+import com.example.aurascents.data.WishlistState
 import com.example.aurascents.ui.components.QuantityStepper
 import com.example.aurascents.ui.theme.*
 import com.example.aurascents.ui.utils.formatLkr
@@ -39,11 +40,15 @@ fun ProductDetailScreen(
     productId: String,
     onNavigateBack: () -> Unit,
     onNavigateToCart: () -> Unit,
+    onNavigateToWishlist: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val product = sampleProducts.find { it.id == productId } ?: sampleProducts[0]
     var quantity by remember { mutableStateOf(1) }
-    var isInWishlist by remember { mutableStateOf(false) }
+    
+    // Check if product is already in wishlist
+    val isInWishlist = WishlistState.isProductInWishlist(productId)
+    
     var isAddToCartPressed by remember { mutableStateOf(false) }
     var isWishlistPressed by remember { mutableStateOf(false) }
     
@@ -79,13 +84,14 @@ fun ProductDetailScreen(
                 IconButton(
                     onClick = {
                         isWishlistPressed = true
-                        isInWishlist = !isInWishlist
+                        // Toggle wishlist item
+                        WishlistState.toggleWishlistItem(productId)
                     },
                     modifier = Modifier.scale(wishlistScale)
                 ) {
                     Icon(
                         imageVector = if (isInWishlist) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Add to Wishlist",
+                        contentDescription = if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist",
                         tint = if (isInWishlist) ErrorRed else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -310,7 +316,8 @@ fun ProductDetailScreenPreview() {
         ProductDetailScreen(
             productId = "1",
             onNavigateBack = {},
-            onNavigateToCart = {}
+            onNavigateToCart = {},
+            onNavigateToWishlist = {}
         )
     }
 }

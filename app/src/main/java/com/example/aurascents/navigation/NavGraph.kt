@@ -135,6 +135,13 @@ fun AuraScentsNavGraph(
                         launchSingleTop = true
                         restoreState = true
                     }
+                },
+                onNavigateToWishlist = {
+                    navController.navigate(Destinations.WISHLIST) {
+                        popUpTo(Destinations.HOME) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
