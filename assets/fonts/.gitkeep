@@ -1,0 +1,5 @@
+# This file ensures the assets/fonts directory is created
+# Add Poppins font files here:
+# - Poppins-Regular.ttf
+# - Poppins-Bold.ttf
+# - Poppins-SemiBold.ttf
