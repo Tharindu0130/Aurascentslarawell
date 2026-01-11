@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/perfume.dart';
-import '../providers/cart_provider.dart';
+import '../providers/app_state.dart';
 import '../utils/theme.dart';
 
 class PerfumeCard extends StatelessWidget {
@@ -47,17 +47,55 @@ class PerfumeCard extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    // Favorite Button
+                    // Wishlist Button
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Consumer<CartProvider>(
-                        builder: (context, cartProvider, _) {
-                          final isInCart = cartProvider.isInCart(perfume.id);
+                      child: Consumer<AppState>(
+                        builder: (context, appState, _) {
+                          final isInWishlist = appState.isInWishlist(perfume.id);
+                          return GestureDetector(
+                            onTap: () {
+                              appState.toggleWishlist(perfume);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    isInWishlist 
+                                        ? 'Removed from wishlist' 
+                                        : 'Added to wishlist'
+                                  ),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                color: isInWishlist ? Colors.red : Colors.grey[600],
+                                size: 20,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    
+                    // Cart Button
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Consumer<AppState>(
+                        builder: (context, appState, _) {
+                          final isInCart = appState.isInCart(perfume.id);
                           return GestureDetector(
                             onTap: () {
                               if (isInCart) {
-                                cartProvider.removeFromCart(perfume.id);
+                                appState.removeFromCart(perfume.id);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Removed from cart'),
@@ -65,7 +103,7 @@ class PerfumeCard extends StatelessWidget {
                                   ),
                                 );
                               } else {
-                                cartProvider.addToCart(perfume);
+                                appState.addToCart(perfume);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Added to cart'),
@@ -81,8 +119,8 @@ class PerfumeCard extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                isInCart ? Icons.favorite : Icons.favorite_border,
-                                color: isInCart ? Colors.red : Colors.grey[600],
+                                isInCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+                                color: isInCart ? AppTheme.primaryColor : Colors.grey[600],
                                 size: 20,
                               ),
                             ),

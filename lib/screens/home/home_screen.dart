@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/app_state.dart';
 import '../../providers/perfume_provider.dart';
-import '../../providers/cart_provider.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../utils/theme.dart';
 import '../../widgets/perfume_card.dart';
 import '../../widgets/category_chip.dart';
 import '../cart/cart_screen.dart';
 import '../profile/profile_screen.dart';
+import '../wishlist/wishlist_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
   int _currentIndex = 0;
 
   @override
@@ -30,12 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
@@ -43,11 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           _HomeTab(),
           CartScreen(),
+          WishlistScreen(),
           ProfileScreen(),
         ],
       ),
-      bottomNavigationBar: Consumer<CartProvider>(
-        builder: (context, cartProvider, _) {
+      bottomNavigationBar: Consumer<AppState>(
+        builder: (context, appState, _) {
           return BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: (index) {
@@ -67,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Stack(
                   children: [
                     const Icon(Icons.shopping_cart),
-                    if (cartProvider.itemCount > 0)
+                    if (appState.cartItemCount > 0)
                       Positioned(
                         right: 0,
                         top: 0,
@@ -82,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             minHeight: 16,
                           ),
                           child: Text(
-                            '${cartProvider.itemCount}',
+                            '${appState.cartItemCount}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -94,6 +88,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 label: 'Cart',
+              ),
+              BottomNavigationBarItem(
+                icon: Stack(
+                  children: [
+                    const Icon(Icons.favorite),
+                    if (appState.wishlistItemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${appState.wishlistItemCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                label: 'Wishlist',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.person),
@@ -143,8 +169,8 @@ class _HomeTabState extends State<_HomeTab> {
                 Row(
                   children: [
                     Expanded(
-                      child: Consumer<AuthProvider>(
-                        builder: (context, authProvider, _) {
+                      child: Consumer<AppState>(
+                        builder: (context, appState, _) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -156,7 +182,7 @@ class _HomeTabState extends State<_HomeTab> {
                                 ),
                               ),
                               Text(
-                                authProvider.user?.name ?? 'Guest',
+                                appState.user?.name ?? 'Guest',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -168,11 +194,32 @@ class _HomeTabState extends State<_HomeTab> {
                         },
                       ),
                     ),
-                    Consumer<ConnectivityProvider>(
-                      builder: (context, connectivity, _) {
-                        return Icon(
-                          connectivity.isOnline ? Icons.wifi : Icons.wifi_off,
-                          color: connectivity.isOnline ? Colors.white : Colors.red,
+                    // Quick Stats
+                    Consumer<AppState>(
+                      builder: (context, appState, _) {
+                        return Row(
+                          children: [
+                            _buildQuickStat(
+                              Icons.shopping_cart,
+                              appState.cartItemCount.toString(),
+                              'Cart',
+                            ),
+                            const SizedBox(width: 12),
+                            _buildQuickStat(
+                              Icons.favorite,
+                              appState.wishlistItemCount.toString(),
+                              'Wishlist',
+                            ),
+                            const SizedBox(width: 12),
+                            Consumer<ConnectivityProvider>(
+                              builder: (context, connectivity, _) {
+                                return Icon(
+                                  connectivity.isOnline ? Icons.wifi : Icons.wifi_off,
+                                  color: connectivity.isOnline ? Colors.white : Colors.red,
+                                );
+                              },
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -299,6 +346,30 @@ class _HomeTabState extends State<_HomeTab> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickStat(IconData icon, String count, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white, size: 20),
+        const SizedBox(height: 2),
+        Text(
+          count,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 10,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import '../providers/app_state.dart';
 import '../providers/perfume_provider.dart';
 import '../utils/theme.dart';
 
@@ -54,9 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 3));
     
     if (mounted) {
-      final authProvider = context.read<AuthProvider>();
+      final appState = context.read<AppState>();
       
-      if (authProvider.isAuthenticated) {
+      if (appState.isAuthenticated) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         Navigator.of(context).pushReplacementNamed('/login');

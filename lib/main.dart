@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart';
+import 'providers/app_state.dart';
 import 'providers/perfume_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/connectivity_provider.dart';
@@ -13,6 +12,7 @@ import 'screens/home/home_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/perfume/perfume_detail_screen.dart';
+import 'screens/wishlist/wishlist_screen.dart';
 import 'utils/theme.dart';
 
 void main() async {
@@ -33,14 +33,16 @@ class PerfumeStoreApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(prefs)),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
+        // Central App State Provider (manages auth, cart, wishlist)
+        ChangeNotifierProvider(create: (_) => AppState(prefs)),
+        
+        // Feature-specific providers
         ChangeNotifierProvider(create: (_) => PerfumeProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
+      child: Consumer<AppState>(
+        builder: (context, appState, _) {
           return MaterialApp(
             title: 'Perfume Store',
             theme: AppTheme.lightTheme,
@@ -51,6 +53,7 @@ class PerfumeStoreApp extends StatelessWidget {
               '/home': (context) => const HomeScreen(),
               '/profile': (context) => const ProfileScreen(),
               '/cart': (context) => const CartScreen(),
+              '/wishlist': (context) => const WishlistScreen(),
             },
             onGenerateRoute: (settings) {
               if (settings.name == '/perfume-detail') {

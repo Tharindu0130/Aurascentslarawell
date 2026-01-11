@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/app_state.dart';
 import '../../utils/theme.dart';
 import 'register_screen.dart';
 
@@ -26,9 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
+      final appState = context.read<AppState>();
       
-      final success = await authProvider.login(
+      final success = await appState.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Login failed'),
+            content: Text(appState.errorMessage ?? 'Login failed'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -145,11 +145,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
                 
                 // Login Button
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
+                Consumer<AppState>(
+                  builder: (context, appState, _) {
                     return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _login,
-                      child: authProvider.isLoading
+                      onPressed: appState.isLoading ? null : _login,
+                      child: appState.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
