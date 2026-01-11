@@ -7,7 +7,7 @@ import '../utils/theme.dart';
 class PerfumeCard extends StatelessWidget {
   final Perfume perfume;
 
-  const PerfumeCard({Key? key, required this.perfume}) : super(key: key);
+  const PerfumeCard({super.key, required this.perfume});
 
   @override
   Widget build(BuildContext context) {

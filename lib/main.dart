@@ -27,7 +27,7 @@ void main() async {
 class PerfumeStoreApp extends StatelessWidget {
   final SharedPreferences prefs;
   
-  const PerfumeStoreApp({Key? key, required this.prefs}) : super(key: key);
+  const PerfumeStoreApp({super.key, required this.prefs});
 
   @override
   Widget build(BuildContext context) {

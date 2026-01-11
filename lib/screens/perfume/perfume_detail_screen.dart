@@ -7,7 +7,7 @@ import '../../utils/theme.dart';
 class PerfumeDetailScreen extends StatelessWidget {
   final dynamic perfume;
 
-  const PerfumeDetailScreen({Key? key, required this.perfume}) : super(key: key);
+  const PerfumeDetailScreen({super.key, required this.perfume});
 
   @override
   Widget build(BuildContext context) {

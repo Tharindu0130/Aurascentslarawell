@@ -27,7 +27,7 @@ class AppTheme {
       ),
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
-      fontFamily: 'Poppins',
+      useMaterial3: true,
       
       appBarTheme: const AppBarTheme(
         backgroundColor: primaryColor,
@@ -35,7 +35,6 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: Colors.white,
@@ -51,7 +50,6 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: const TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -82,37 +80,31 @@ class AppTheme {
           borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
         labelStyle: const TextStyle(
-          fontFamily: 'Poppins',
           color: primaryColor,
         ),
       ),
       
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: primaryColor,
         ),
         headlineMedium: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: primaryColor,
         ),
         titleLarge: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: Colors.black87,
         ),
         bodyLarge: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 16,
           color: Colors.black87,
         ),
         bodyMedium: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 14,
           color: Colors.black54,
         ),

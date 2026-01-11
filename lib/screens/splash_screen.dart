@@ -5,7 +5,7 @@ import '../providers/perfume_provider.dart';
 import '../utils/theme.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -118,7 +118,6 @@ class _SplashScreenState extends State<SplashScreen>
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  fontFamily: 'Poppins',
                 ),
               ),
             ),
@@ -130,7 +129,6 @@ class _SplashScreenState extends State<SplashScreen>
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
-                  fontFamily: 'Poppins',
                 ),
               ),
             ),

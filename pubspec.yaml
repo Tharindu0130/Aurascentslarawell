@@ -1,11 +1,12 @@
 name: perfume_store
-description: A complete perfume store mobile application for Mobile App Development II assignment.
+description: A complete perfume store mobile application built with 100% Flutter/Dart code.
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
@@ -13,9 +14,6 @@ dependencies:
   
   # State Management
   provider: ^6.1.1
-  
-  # HTTP requests
-  http: ^1.1.0
   
   # Local storage
   shared_preferences: ^2.2.2
@@ -29,8 +27,8 @@ dependencies:
   # Network connectivity
   connectivity_plus: ^5.0.2
   
-  # File system paths
-  path_provider: ^2.1.1
+  # HTTP requests
+  http: ^1.1.0
   
   # UI Components
   cupertino_icons: ^1.0.2
@@ -46,12 +44,3 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-  
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Poppins-SemiBold.ttf
-          weight: 600
