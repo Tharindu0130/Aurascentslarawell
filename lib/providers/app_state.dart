@@ -25,6 +25,19 @@ class AppState with ChangeNotifier {
   // Wishlist State
   final List<WishlistItem> _wishlistItems = [];
 
+  // Theme State
+  bool _isDarkTheme = false;
+
+  // Sensor Data State
+  double _accelerometerX = 0.0;
+  double _accelerometerY = 0.0;
+  double _accelerometerZ = 0.0;
+  double _gyroscopeX = 0.0;
+  double _gyroscopeY = 0.0;
+  double _gyroscopeZ = 0.0;
+  int _batteryLevel = 100;
+  bool _isCharging = false;
+
   // Constructor
   AppState(this._prefs) {
     _loadUserFromStorage();
@@ -50,6 +63,19 @@ class AppState with ChangeNotifier {
   // Wishlist Getters
   List<WishlistItem> get wishlistItems => List.unmodifiable(_wishlistItems);
   int get wishlistItemCount => _wishlistItems.length;
+
+  // Theme Getters
+  bool get isDarkTheme => _isDarkTheme;
+
+  // Sensor Data Getters
+  double get accelerometerX => _accelerometerX;
+  double get accelerometerY => _accelerometerY;
+  double get accelerometerZ => _accelerometerZ;
+  double get gyroscopeX => _gyroscopeX;
+  double get gyroscopeY => _gyroscopeY;
+  double get gyroscopeZ => _gyroscopeZ;
+  int get batteryLevel => _batteryLevel;
+  bool get isCharging => _isCharging;
 
   // ============================================================================
   // AUTHENTICATION METHODS
@@ -367,6 +393,54 @@ class AppState with ChangeNotifier {
   /// Clear error message (public method)
   void clearError() {
     _clearError();
+  }
+
+  // ============================================================================
+  // THEME METHODS
+  // ============================================================================
+
+  /// Toggle theme between light and dark
+  void toggleTheme() {
+    _isDarkTheme = !_isDarkTheme;
+    notifyListeners();
+  }
+
+  /// Set theme to dark or light
+  void setTheme(bool isDark) {
+    _isDarkTheme = isDark;
+    notifyListeners();
+  }
+
+  // ============================================================================
+  // SENSOR DATA METHODS
+  // ============================================================================
+
+  /// Update accelerometer data
+  void updateAccelerometer(double x, double y, double z) {
+    _accelerometerX = x;
+    _accelerometerY = y;
+    _accelerometerZ = z;
+    notifyListeners();
+  }
+
+  /// Update gyroscope data
+  void updateGyroscope(double x, double y, double z) {
+    _gyroscopeX = x;
+    _gyroscopeY = y;
+    _gyroscopeZ = z;
+    notifyListeners();
+  }
+
+  /// Update battery level
+  void updateBatteryLevel(int level) {
+    _batteryLevel = level;
+    notifyListeners();
+  }
+
+  /// Update charging status
+  void updateChargingStatus(bool isCharging) {
+    _isCharging = isCharging;
+    notifyListeners();
   }
 
   // ============================================================================

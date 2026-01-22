@@ -13,9 +13,11 @@ import 'screens/profile/profile_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/perfume/perfume_detail_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
+
 import 'screens/settings/settings_screen.dart';
 import 'screens/help/help_screen.dart';
 import 'utils/theme.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,12 +44,15 @@ class PerfumeStoreApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PerfumeProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+
       ],
       child: Consumer<AppState>(
         builder: (context, appState, _) {
           return MaterialApp(
             title: 'Perfume Store',
+            themeMode: ThemeMode.system,
             theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
             debugShowCheckedModeBanner: false,
             home: const SplashScreen(),
             routes: {
