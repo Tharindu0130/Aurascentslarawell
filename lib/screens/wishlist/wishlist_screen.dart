@@ -13,6 +13,12 @@ class WishlistScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Wishlist'),
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           Consumer<AppState>(
             builder: (context, appState, _) {

@@ -13,6 +13,12 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Settings'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: Consumer<AppState>(
         builder: (context, appState, child) {

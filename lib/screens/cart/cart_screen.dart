@@ -15,6 +15,12 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Shopping Cart'),
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           Consumer<AppState>(
             builder: (context, appState, _) {

@@ -19,6 +19,12 @@ class PerfumeDetailScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'perfume-${perfumeData.id}',
@@ -50,27 +56,27 @@ class PerfumeDetailScreen extends StatelessWidget {
                 builder: (context, appState, _) {
                   return IconButton(
                     icon: Icon(
-                      appState.isInCart(perfumeData.id)
-                          ? Icons.shopping_cart
-                          : Icons.shopping_cart_outlined,
-                      color: appState.isInCart(perfumeData.id)
+                      appState.isInWishlist(perfumeData.id)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: appState.isInWishlist(perfumeData.id)
                           ? Colors.red
                           : Colors.white,
                     ),
                     onPressed: () {
-                      if (appState.isInCart(perfumeData.id)) {
-                        appState.removeFromCart(perfumeData.id);
+                      if (appState.isInWishlist(perfumeData.id)) {
+                        appState.removeFromWishlist(perfumeData.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Removed from cart'),
+                            content: Text('Removed from wishlist'),
                             duration: Duration(seconds: 1),
                           ),
                         );
                       } else {
-                        appState.addToCart(perfumeData);
+                        appState.addToWishlist(perfumeData);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Added to cart'),
+                            content: Text('Added to wishlist'),
                             duration: Duration(seconds: 1),
                           ),
                         );
@@ -145,14 +151,19 @@ class PerfumeDetailScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: perfumeData.isAvailable
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.red.withOpacity(0.1),
+                              ? Colors.green[100]
+                              : Colors.red[100],
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: perfumeData.isAvailable
+                                ? Colors.green[300]!
+                                : Colors.red[300]!,
+                          ),
                         ),
                         child: Text(
                           perfumeData.isAvailable ? 'In Stock' : 'Out of Stock',
                           style: TextStyle(
-                            color: perfumeData.isAvailable ? Colors.green : Colors.red,
+                            color: perfumeData.isAvailable ? Colors.green[700] : Colors.red[700],
                             fontWeight: FontWeight.w600,
                           ),
                         ),

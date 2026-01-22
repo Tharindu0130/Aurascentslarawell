@@ -79,6 +79,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           Consumer<AuthProvider>(
             builder: (context, authProvider, _) {
