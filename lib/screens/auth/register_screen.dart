@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/app_state.dart';
 import '../../utils/theme.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -30,9 +30,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
+      final appState = context.read<AppState>();
       
-      final success = await authProvider.register(
+      final success = await appState.register(
         _nameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
@@ -43,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Registration failed'),
+            content: Text(appState.errorMessage ?? 'Registration failed'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -193,11 +193,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 30),
                 
                 // Register Button
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
+                Consumer<AppState>(
+                  builder: (context, appState, _) {
                     return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _register,
-                      child: authProvider.isLoading
+                      onPressed: appState.isLoading ? null : _register,
+                      child: appState.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
