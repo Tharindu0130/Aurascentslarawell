@@ -1,10 +1,10 @@
 {
   "roots": [
-    "perfume_store"
+    "aura_scents"
   ],
   "packages": [
     {
-      "name": "perfume_store",
+      "name": "aura_scents",
       "version": "1.0.0+1",
       "dependencies": [
         "camera",
@@ -13,6 +13,8 @@
         "flutter",
         "geolocator",
         "http",
+        "path",
+        "path_provider",
         "provider",
         "shared_preferences"
       ],
@@ -60,6 +62,23 @@
         "meta",
         "web"
       ]
+    },
+    {
+      "name": "path_provider",
+      "version": "2.1.5",
+      "dependencies": [
+        "flutter",
+        "path_provider_android",
+        "path_provider_foundation",
+        "path_provider_linux",
+        "path_provider_platform_interface",
+        "path_provider_windows"
+      ]
+    },
+    {
+      "name": "path",
+      "version": "1.9.1",
+      "dependencies": []
     },
     {
       "name": "connectivity_plus",
@@ -190,11 +209,6 @@
       ]
     },
     {
-      "name": "path",
-      "version": "1.9.1",
-      "dependencies": []
-    },
-    {
       "name": "matcher",
       "version": "0.12.17",
       "dependencies": [
@@ -241,6 +255,52 @@
       "dependencies": [
         "collection",
         "meta"
+      ]
+    },
+    {
+      "name": "path_provider_windows",
+      "version": "2.3.0",
+      "dependencies": [
+        "ffi",
+        "flutter",
+        "path",
+        "path_provider_platform_interface"
+      ]
+    },
+    {
+      "name": "path_provider_platform_interface",
+      "version": "2.1.2",
+      "dependencies": [
+        "flutter",
+        "platform",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "path_provider_linux",
+      "version": "2.2.1",
+      "dependencies": [
+        "ffi",
+        "flutter",
+        "path",
+        "path_provider_platform_interface",
+        "xdg_directories"
+      ]
+    },
+    {
+      "name": "path_provider_foundation",
+      "version": "2.5.1",
+      "dependencies": [
+        "flutter",
+        "path_provider_platform_interface"
+      ]
+    },
+    {
+      "name": "path_provider_android",
+      "version": "2.2.22",
+      "dependencies": [
+        "flutter",
+        "path_provider_platform_interface"
       ]
     },
     {
@@ -504,6 +564,31 @@
       ]
     },
     {
+      "name": "ffi",
+      "version": "2.1.5",
+      "dependencies": []
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "platform",
+      "version": "3.1.6",
+      "dependencies": []
+    },
+    {
+      "name": "xdg_directories",
+      "version": "1.1.0",
+      "dependencies": [
+        "meta",
+        "path"
+      ]
+    },
+    {
       "name": "dbus",
       "version": "0.7.11",
       "dependencies": [
@@ -511,13 +596,6 @@
         "ffi",
         "meta",
         "xml"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
       ]
     },
     {
@@ -543,41 +621,11 @@
       ]
     },
     {
-      "name": "path_provider_windows",
-      "version": "2.3.0",
-      "dependencies": [
-        "ffi",
-        "flutter",
-        "path",
-        "path_provider_platform_interface"
-      ]
-    },
-    {
-      "name": "path_provider_platform_interface",
-      "version": "2.1.2",
-      "dependencies": [
-        "flutter",
-        "platform",
-        "plugin_platform_interface"
-      ]
-    },
-    {
       "name": "file",
       "version": "7.0.1",
       "dependencies": [
         "meta",
         "path"
-      ]
-    },
-    {
-      "name": "path_provider_linux",
-      "version": "2.2.1",
-      "dependencies": [
-        "ffi",
-        "flutter",
-        "path",
-        "path_provider_platform_interface",
-        "xdg_directories"
       ]
     },
     {
@@ -595,11 +643,6 @@
       ]
     },
     {
-      "name": "ffi",
-      "version": "2.1.5",
-      "dependencies": []
-    },
-    {
       "name": "args",
       "version": "2.7.0",
       "dependencies": []
@@ -614,19 +657,6 @@
       "version": "3.0.7",
       "dependencies": [
         "typed_data"
-      ]
-    },
-    {
-      "name": "platform",
-      "version": "3.1.6",
-      "dependencies": []
-    },
-    {
-      "name": "xdg_directories",
-      "version": "1.1.0",
-      "dependencies": [
-        "meta",
-        "path"
       ]
     },
     {

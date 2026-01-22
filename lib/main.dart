@@ -49,7 +49,7 @@ class PerfumeStoreApp extends StatelessWidget {
       child: Consumer<AppState>(
         builder: (context, appState, _) {
           return MaterialApp(
-            title: 'Perfume Store',
+            title: 'Aura Scents',
             themeMode: ThemeMode.system,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

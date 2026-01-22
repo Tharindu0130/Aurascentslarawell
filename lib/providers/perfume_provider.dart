@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/perfume.dart';
-import '../services/perfume_service.dart';
+import '../services/data_service.dart';
 
 class PerfumeProvider with ChangeNotifier {
-  final PerfumeService _perfumeService = PerfumeService();
+  final DataService _dataService = DataService();
   
   List<Perfume> _perfumes = [];
   List<Perfume> _filteredPerfumes = [];
@@ -34,7 +34,7 @@ class PerfumeProvider with ChangeNotifier {
     _clearError();
 
     try {
-      _perfumes = await _perfumeService.getAllPerfumes();
+      _perfumes = await _dataService.loadPerfumes();
       _applyFilters();
     } catch (e) {
       _setError('Failed to load perfumes: ${e.toString()}');
@@ -71,7 +71,7 @@ class PerfumeProvider with ChangeNotifier {
 
   Future<Perfume?> getPerfumeById(String id) async {
     try {
-      return await _perfumeService.getPerfumeById(id);
+      return await _dataService.getPerfumeById(id);
     } catch (e) {
       _setError('Failed to load perfume details: ${e.toString()}');
       return null;

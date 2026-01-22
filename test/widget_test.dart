@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:perfume_store/main.dart';
+import 'package:aura_scents/main.dart';
 
 void main() {
   testWidgets('Perfume Store app smoke test', (WidgetTester tester) async {
