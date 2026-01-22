@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/app_state.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../utils/theme.dart';
@@ -29,9 +29,9 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
-          final user = authProvider.user;
+      body: Consumer<AppState>(
+        builder: (context, appState, _) {
+          final user = appState.user;
           
           if (user == null) {
             return const Center(
@@ -154,6 +154,18 @@ class ProfileScreen extends StatelessWidget {
                       'Camera Access',
                       'Test camera functionality',
                       () => _testCamera(context),
+                    ),
+                    _buildActionTile(
+                      Icons.settings,
+                      'Settings',
+                      'App settings and preferences',
+                      () => Navigator.pushNamed(context, '/settings'),
+                    ),
+                    _buildActionTile(
+                      Icons.help,
+                      'Help & Support',
+                      'Get help and support',
+                      () => Navigator.pushNamed(context, '/help'),
                     ),
                   ],
                 ),
@@ -417,7 +429,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                context.read<AuthProvider>().logout();
+                context.read<AppState>().logout();
                 Navigator.of(context).pop();
                 Navigator.of(context).pushReplacementNamed('/login');
               },

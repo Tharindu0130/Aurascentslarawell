@@ -13,6 +13,8 @@ import 'screens/profile/profile_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/perfume/perfume_detail_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/help/help_screen.dart';
 import 'utils/theme.dart';
 
 void main() async {
@@ -54,6 +56,8 @@ class PerfumeStoreApp extends StatelessWidget {
               '/profile': (context) => const ProfileScreen(),
               '/cart': (context) => const CartScreen(),
               '/wishlist': (context) => const WishlistScreen(),
+              '/settings': (context) => const SettingsScreen(),
+              '/help': (context) => const HelpScreen(),
             },
             onGenerateRoute: (settings) {
               if (settings.name == '/perfume-detail') {
