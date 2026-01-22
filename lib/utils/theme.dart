@@ -10,21 +10,7 @@ class AppTheme {
   
   static ThemeData get lightTheme {
     return ThemeData(
-      primarySwatch: MaterialColor(
-        primaryColor.value,
-        <int, Color>{
-          50: primaryColor.withOpacity(0.1),
-          100: primaryColor.withOpacity(0.2),
-          200: primaryColor.withOpacity(0.3),
-          300: primaryColor.withOpacity(0.4),
-          400: primaryColor.withOpacity(0.5),
-          500: primaryColor,
-          600: primaryColor.withOpacity(0.7),
-          700: primaryColor.withOpacity(0.8),
-          800: primaryColor.withOpacity(0.9),
-          900: primaryColor,
-        },
-      ),
+      colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
       useMaterial3: true,
@@ -56,7 +42,7 @@ class AppTheme {
         ),
       ),
       
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -69,11 +55,11 @@ class AppTheme {
         fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+          borderSide: BorderSide(color: primaryColor.withValues(alpha: 0.3)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+          borderSide: BorderSide(color: primaryColor.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
