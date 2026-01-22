@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/perfume.dart';
-import '../../providers/cart_provider.dart';
+import '../../providers/app_state.dart';
 import '../../utils/theme.dart';
 
 class PerfumeDetailScreen extends StatelessWidget {
@@ -46,20 +46,20 @@ class PerfumeDetailScreen extends StatelessWidget {
               ),
             ),
             actions: [
-              Consumer<CartProvider>(
-                builder: (context, cartProvider, _) {
+              Consumer<AppState>(
+                builder: (context, appState, _) {
                   return IconButton(
                     icon: Icon(
-                      cartProvider.isInCart(perfumeData.id)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: cartProvider.isInCart(perfumeData.id)
+                      appState.isInCart(perfumeData.id)
+                          ? Icons.shopping_cart
+                          : Icons.shopping_cart_outlined,
+                      color: appState.isInCart(perfumeData.id)
                           ? Colors.red
                           : Colors.white,
                     ),
                     onPressed: () {
-                      if (cartProvider.isInCart(perfumeData.id)) {
-                        cartProvider.removeFromCart(perfumeData.id);
+                      if (appState.isInCart(perfumeData.id)) {
+                        appState.removeFromCart(perfumeData.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Removed from cart'),
@@ -67,7 +67,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        cartProvider.addToCart(perfumeData);
+                        appState.addToCart(perfumeData);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Added to cart'),
@@ -228,10 +228,10 @@ class PerfumeDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: Consumer<CartProvider>(
-          builder: (context, cartProvider, _) {
-            final isInCart = cartProvider.isInCart(perfumeData.id);
-            final quantity = cartProvider.getQuantity(perfumeData.id);
+        child: Consumer<AppState>(
+          builder: (context, appState, _) {
+            final isInCart = appState.isInCart(perfumeData.id);
+            final quantity = appState.getCartQuantity(perfumeData.id);
             
             return Row(
               children: [
@@ -248,9 +248,9 @@ class PerfumeDetailScreen extends StatelessWidget {
                         IconButton(
                           onPressed: () {
                             if (quantity > 1) {
-                              cartProvider.updateQuantity(perfumeData.id, quantity - 1);
+                              appState.updateCartQuantity(perfumeData.id, quantity - 1);
                             } else {
-                              cartProvider.removeFromCart(perfumeData.id);
+                              appState.removeFromCart(perfumeData.id);
                             }
                           },
                           icon: Icon(
@@ -267,7 +267,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                         ),
                         IconButton(
                           onPressed: () {
-                            cartProvider.updateQuantity(perfumeData.id, quantity + 1);
+                            appState.updateCartQuantity(perfumeData.id, quantity + 1);
                           },
                           icon: const Icon(
                             Icons.add,
@@ -288,7 +288,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                             if (isInCart) {
                               Navigator.of(context).pushNamed('/cart');
                             } else {
-                              cartProvider.addToCart(perfumeData);
+                              appState.addToCart(perfumeData);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Added to cart'),

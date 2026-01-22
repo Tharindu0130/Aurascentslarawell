@@ -47,8 +47,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
+    // Wait a bit before initializing to avoid build conflicts
+    await Future.delayed(const Duration(milliseconds: 100));
+    
     // Load perfumes data
-    await context.read<PerfumeProvider>().loadPerfumes();
+    if (mounted) {
+      await context.read<PerfumeProvider>().loadPerfumes();
+    }
     
     // Wait for animation to complete
     await Future.delayed(const Duration(seconds: 3));
@@ -113,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
             FadeTransition(
               opacity: _fadeAnimation,
               child: const Text(
-                'Perfume Store',
+                'Aura Scents',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

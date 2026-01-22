@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/location_provider.dart';
+
+
+import '../../providers/app_state.dart';
 import '../../utils/theme.dart';
 import '../../widgets/cart_item_widget.dart';
 
@@ -15,12 +16,12 @@ class CartScreen extends StatelessWidget {
         title: const Text('Shopping Cart'),
         automaticallyImplyLeading: false,
         actions: [
-          Consumer<CartProvider>(
-            builder: (context, cartProvider, _) {
-              if (cartProvider.items.isNotEmpty) {
+          Consumer<AppState>(
+            builder: (context, appState, _) {
+              if (appState.cartItems.isNotEmpty) {
                 return TextButton(
                   onPressed: () {
-                    _showClearCartDialog(context, cartProvider);
+                    _showClearCartDialog(context, appState);
                   },
                   child: const Text(
                     'Clear All',
@@ -33,9 +34,9 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<CartProvider>(
-        builder: (context, cartProvider, _) {
-          if (cartProvider.items.isEmpty) {
+      body: Consumer<AppState>(
+        builder: (context, appState, _) {
+          if (appState.cartItems.isEmpty) {
             return const _EmptyCartWidget();
           }
 
@@ -45,12 +46,15 @@ class CartScreen extends StatelessWidget {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: cartProvider.items.length,
+                  itemCount: appState.cartItems.length,
                   itemBuilder: (context, index) {
-                    final cartItem = cartProvider.items[index];
+                    final cartItem = appState.cartItems[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
-                      child: CartItemWidget(cartItem: cartItem),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: CartItemWidget(cartItem: cartItem),
+                      ),
                     );
                   },
                 ),
@@ -71,18 +75,22 @@ class CartScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Total Items: ${cartProvider.itemCount}',
+                          'Total Items: ${appState.cartItemCount}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        Text(
-                          '\$${cartProvider.totalAmount.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '\$${appState.cartTotalAmount.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -92,7 +100,7 @@ class CartScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          _showCheckoutDialog(context, cartProvider);
+                          _showCheckoutDialog(context, appState);
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -113,7 +121,7 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  void _showClearCartDialog(BuildContext context, CartProvider cartProvider) {
+  void _showClearCartDialog(BuildContext context, AppState appState) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -129,7 +137,7 @@ class CartScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                cartProvider.clearCart();
+                appState.clearCart();
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -149,7 +157,7 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  void _showCheckoutDialog(BuildContext context, CartProvider cartProvider) {
+  void _showCheckoutDialog(BuildContext context, AppState appState) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -159,9 +167,9 @@ class CartScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total: \$${cartProvider.totalAmount.toStringAsFixed(2)}'),
+              Text('Total: \$${appState.cartTotalAmount.toStringAsFixed(2)}'),
               const SizedBox(height: 8),
-              Text('Items: ${cartProvider.itemCount}'),
+              Text('Items: ${appState.cartItemCount}'),
               const SizedBox(height: 16),
               const Text('This is a demo app. In a real application, this would integrate with a payment gateway.'),
             ],
@@ -176,7 +184,7 @@ class CartScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Simulate order placement
-                cartProvider.clearCart();
+                appState.clearCart();
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -225,8 +233,8 @@ class _EmptyCartWidget extends StatelessWidget {
           const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
-              // Navigate back to home tab
-              // This assumes the cart screen is part of a bottom navigation
+              // Navigate back to home screen
+              Navigator.of(context).pushReplacementNamed('/home');
             },
             child: const Text('Start Shopping'),
           ),

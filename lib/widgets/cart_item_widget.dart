@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_item.dart';
-import '../providers/cart_provider.dart';
+import '../providers/app_state.dart';
 import '../utils/theme.dart';
 
 class CartItemWidget extends StatelessWidget {
@@ -91,14 +91,14 @@ class CartItemWidget extends StatelessWidget {
                         context,
                         Icons.remove,
                         () {
-                          final cartProvider = context.read<CartProvider>();
+                          final appState = context.read<AppState>();
                           if (cartItem.quantity > 1) {
-                            cartProvider.updateQuantity(
+                            appState.updateCartQuantity(
                               cartItem.perfume.id,
                               cartItem.quantity - 1,
                             );
                           } else {
-                            _showRemoveDialog(context, cartProvider);
+                            _showRemoveDialog(context, appState);
                           }
                         },
                       ),
@@ -116,7 +116,7 @@ class CartItemWidget extends StatelessWidget {
                         context,
                         Icons.add,
                         () {
-                          context.read<CartProvider>().updateQuantity(
+                          context.read<AppState>().updateCartQuantity(
                             cartItem.perfume.id,
                             cartItem.quantity + 1,
                           );
@@ -143,7 +143,7 @@ class CartItemWidget extends StatelessWidget {
                 // Remove Button
                 GestureDetector(
                   onTap: () {
-                    _showRemoveDialog(context, context.read<CartProvider>());
+                    _showRemoveDialog(context, context.read<AppState>());
                   },
                   child: Container(
                     padding: const EdgeInsets.all(4),
@@ -184,7 +184,7 @@ class CartItemWidget extends StatelessWidget {
     );
   }
 
-  void _showRemoveDialog(BuildContext context, CartProvider cartProvider) {
+  void _showRemoveDialog(BuildContext context, AppState appState) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -200,7 +200,7 @@ class CartItemWidget extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                cartProvider.removeFromCart(cartItem.perfume.id);
+                appState.removeFromCart(cartItem.perfume.id);
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

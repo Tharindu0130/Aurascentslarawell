@@ -44,6 +44,7 @@ class PerfumeStoreApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PerfumeProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+        // Note: Cart provider is now part of AppState provider
 
       ],
       child: Consumer<AppState>(
