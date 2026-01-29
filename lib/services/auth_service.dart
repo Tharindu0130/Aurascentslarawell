@@ -1,32 +1,28 @@
 import '../models/user.dart';
+import 'api_service.dart';
 
+/// AuthService - Handles authentication using the Laravel backend API
 class AuthService {
-  static const String baseUrl = 'https://api.perfumestore.com'; // Mock API URL
+  final ApiService _apiService = ApiService();
   
+  /// Login user with email and password
   Future<User?> login(String email, String password) async {
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await _apiService.login(email, password);
       
-      // Mock authentication - in real app, this would be an actual API call
-      if (email == 'user@perfumestore.com' && password == 'password123') {
+      // Check if login was successful
+      if (response['success'] == true && response['data'] != null) {
+        final userData = response['data']['user'];
+        
+        // Convert Laravel user to Flutter User model
         return User(
-          id: '1',
-          email: email,
-          name: 'John Doe',
-          phoneNumber: '+1234567890',
-          address: '123 Perfume Street, Fragrance City',
-          createdAt: DateTime.now().subtract(const Duration(days: 30)),
+          id: userData['id'].toString(),
+          email: userData['email'],
+          name: userData['name'],
+          profileImageUrl: userData['profile_photo_url'],
+          createdAt: DateTime.parse(userData['created_at'] ?? DateTime.now().toIso8601String()),
           lastLoginAt: DateTime.now(),
         );
-      }
-      
-      // Check for demo users
-      final demoUsers = _getDemoUsers();
-      for (final user in demoUsers) {
-        if (user.email == email && password == 'demo123') {
-          return user.copyWith(lastLoginAt: DateTime.now());
-        }
       }
       
       return null;
@@ -35,54 +31,54 @@ class AuthService {
     }
   }
 
+  /// Register new user (if backend supports registration)
   Future<User?> register(String name, String email, String password) async {
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Mock registration - in real app, this would be an actual API call
-      return User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        email: email,
-        name: name,
-        createdAt: DateTime.now(),
-        lastLoginAt: DateTime.now(),
-      );
+      // Note: You might need to add a register endpoint to your Laravel API
+      // For now, returning a mock user or throwing an exception
+      throw Exception('Registration not implemented in backend API yet');
     } catch (e) {
       throw Exception('Registration failed: ${e.toString()}');
     }
   }
 
+  /// Update user profile
   Future<User?> updateProfile(User user) async {
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 1));
+      // Get current profile from backend
+      final profileData = await _apiService.getUserProfile();
       
-      // Mock profile update - in real app, this would be an actual API call
-      return user;
+      // Convert to User model
+      return User(
+        id: profileData['id'].toString(),
+        email: profileData['email'],
+        name: profileData['name'],
+        profileImageUrl: profileData['profile_photo_url'],
+        phoneNumber: user.phoneNumber, // Keep local phone number
+        address: user.address, // Keep local address
+        createdAt: DateTime.parse(profileData['created_at']),
+        lastLoginAt: DateTime.now(),
+      );
     } catch (e) {
       throw Exception('Profile update failed: ${e.toString()}');
     }
   }
-
-  List<User> _getDemoUsers() {
-    return [
-      User(
-        id: '2',
-        email: 'alice@demo.com',
-        name: 'Alice Johnson',
-        phoneNumber: '+1987654321',
-        address: '456 Scent Avenue, Aroma Town',
-        createdAt: DateTime.now().subtract(const Duration(days: 60)),
-      ),
-      User(
-        id: '3',
-        email: 'bob@demo.com',
-        name: 'Bob Smith',
-        phoneNumber: '+1122334455',
-        address: '789 Fragrance Boulevard, Perfume City',
-        createdAt: DateTime.now().subtract(const Duration(days: 45)),
-      ),
-    ];
+  
+  /// Get current user profile
+  Future<User?> getCurrentUser() async {
+    try {
+      final profileData = await _apiService.getUserProfile();
+      
+      return User(
+        id: profileData['id'].toString(),
+        email: profileData['email'],
+        name: profileData['name'],
+        profileImageUrl: profileData['profile_photo_url'],
+        createdAt: DateTime.parse(profileData['created_at']),
+        lastLoginAt: DateTime.now(),
+      );
+    } catch (e) {
+      return null;
+    }
   }
 }

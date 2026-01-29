@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../providers/auth_provider.dart';
+import '../../providers/app_state.dart';
 import '../../models/user.dart';
-import '../../utils/theme.dart';
+import '../camera/camera_capture_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -16,11 +19,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
+  String? _capturedImagePath;
 
   @override
   void initState() {
     super.initState();
-    final user = context.read<AuthProvider>().user;
+    final user = context.read<AppState>().user;
     _nameController = TextEditingController(text: user?.name ?? '');
     _phoneController = TextEditingController(text: user?.phoneNumber ?? '');
     _addressController = TextEditingController(text: user?.address ?? '');
@@ -36,8 +40,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = context.read<AuthProvider>();
-      final currentUser = authProvider.user;
+      final appState = context.read<AppState>();
+      final currentUser = appState.user;
       
       if (currentUser != null) {
         final updatedUser = currentUser.copyWith(
@@ -50,10 +54,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               : _addressController.text.trim(),
         );
 
-        await authProvider.updateProfile(updatedUser);
+        await appState.updateProfile(updatedUser);
 
         if (mounted) {
-          if (authProvider.errorMessage == null) {
+          if (appState.errorMessage == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Profile updated successfully'),
@@ -64,8 +68,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(authProvider.errorMessage!),
-                backgroundColor: AppTheme.errorColor,
+                content: Text(appState.errorMessage!),
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -86,11 +90,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           },
         ),
         actions: [
-          Consumer<AuthProvider>(
-            builder: (context, authProvider, _) {
+          Consumer<AppState>(
+            builder: (context, appState, _) {
               return TextButton(
-                onPressed: authProvider.isLoading ? null : _saveProfile,
-                child: authProvider.isLoading
+                onPressed: appState.isLoading ? null : _saveProfile,
+                child: appState.isLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -99,9 +103,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Save',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
               );
             },
@@ -119,20 +125,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    Consumer<AuthProvider>(
-                      builder: (context, authProvider, _) {
-                        final user = authProvider.user;
+                    Consumer<AppState>(
+                      builder: (context, appState, _) {
+                        final user = appState.user;
                         return CircleAvatar(
                           radius: 60,
-                          backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                          backgroundImage: user?.profileImageUrl != null
-                              ? NetworkImage(user!.profileImageUrl!)
-                              : null,
-                          child: user?.profileImageUrl == null
+                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          backgroundImage: _capturedImagePath != null
+                              ? FileImage(File(_capturedImagePath!))
+                              : (user?.profileImageUrl != null
+                                  ? NetworkImage(user!.profileImageUrl!)
+                                  : null) as ImageProvider?,
+                          child: _capturedImagePath == null && user?.profileImageUrl == null
                               ? Icon(
                                   Icons.person,
                                   size: 60,
-                                  color: AppTheme.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 )
                               : null,
                         );
@@ -142,21 +150,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       bottom: 0,
                       right: 0,
                       child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Profile picture update would be implemented here'),
-                            ),
-                          );
-                        },
+                        onTap: () => _showImagePickerOptions(context),
                         child: Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primaryColor,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.camera_alt,
+                            Icons.add_a_photo,
                             color: Colors.white,
                             size: 20,
                           ),
@@ -190,10 +192,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 20),
               
               // Email Field (Read-only)
-              Consumer<AuthProvider>(
-                builder: (context, authProvider, _) {
+              Consumer<AppState>(
+                builder: (context, appState, _) {
                   return TextFormField(
-                    initialValue: authProvider.user?.email ?? '',
+                    initialValue: appState.user?.email ?? '',
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       prefixIcon: Icon(Icons.email_outlined),
@@ -261,9 +263,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Consumer<AuthProvider>(
-                        builder: (context, authProvider, _) {
-                          final user = authProvider.user;
+                      Consumer<AppState>(
+                        builder: (context, appState, _) {
+                          final user = appState.user;
                           return Column(
                             children: [
                               _buildInfoRow(
@@ -313,5 +315,157 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ],
       ),
     );
+  }
+
+  /// Show bottom sheet with camera and gallery options
+  void _showImagePickerOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  'Choose Profile Picture',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                
+                // Camera Option
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  title: const Text('Take Photo'),
+                  subtitle: const Text('Use camera to capture a new photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openCamera(context);
+                  },
+                ),
+                
+                // Gallery Option
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.photo_library,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                  title: const Text('Choose from Gallery'),
+                  subtitle: const Text('Select an existing photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImageFromGallery(context);
+                  },
+                ),
+                
+                const SizedBox(height: 10),
+                
+                // Cancel Button
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Open camera to capture profile picture
+  Future<void> _openCamera(BuildContext context) async {
+    try {
+      // Navigate to camera capture screen
+      final imagePath = await Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          builder: (context) => const CameraCaptureScreen(),
+        ),
+      );
+
+      // Update profile picture if photo was captured
+      if (imagePath != null && mounted) {
+        setState(() {
+          _capturedImagePath = imagePath;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Profile picture updated from camera!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Camera error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Pick image from gallery
+  Future<void> _pickImageFromGallery(BuildContext context) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          _capturedImagePath = image.path;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Profile picture updated from gallery!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gallery error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 }

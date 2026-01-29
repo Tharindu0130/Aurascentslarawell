@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/wishlist_item.dart';
 import '../providers/app_state.dart';
-import '../utils/theme.dart';
 
 class WishlistItemWidget extends StatelessWidget {
   final WishlistItem wishlistItem;
@@ -56,7 +55,7 @@ class WishlistItemWidget extends StatelessWidget {
                     Text(
                       wishlistItem.perfume.brand,
                       style: TextStyle(
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -74,9 +73,9 @@ class WishlistItemWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '\$${wishlistItem.perfume.price.toStringAsFixed(2)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

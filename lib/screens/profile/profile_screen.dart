@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../providers/app_state.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/connectivity_provider.dart';
-import '../../utils/theme.dart';
 import 'edit_profile_screen.dart';
+import '../camera/camera_capture_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String? _capturedImagePath;
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +58,17 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 60,
-                        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                        backgroundImage: user.profileImageUrl != null
-                            ? NetworkImage(user.profileImageUrl!)
-                            : null,
-                        child: user.profileImageUrl == null
+                        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        backgroundImage: _capturedImagePath != null
+                            ? FileImage(File(_capturedImagePath!))
+                            : (user.profileImageUrl != null
+                                ? NetworkImage(user.profileImageUrl!)
+                                : null) as ImageProvider?,
+                        child: _capturedImagePath == null && user.profileImageUrl == null
                             ? Icon(
                                 Icons.person,
                                 size: 60,
-                                color: AppTheme.primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                               )
                             : null,
                       ),
@@ -65,15 +76,15 @@ class ProfileScreen extends StatelessWidget {
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
-                          onTap: () => _showImageOptions(context),
+                          onTap: () => _showImagePickerOptions(context),
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: AppTheme.primaryColor,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.camera_alt,
+                              Icons.add_a_photo,
                               color: Colors.white,
                               size: 20,
                             ),
@@ -110,22 +121,26 @@ class ProfileScreen extends StatelessWidget {
                       Icons.phone,
                       'Phone',
                       user.phoneNumber ?? 'Not provided',
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildInfoTile(
                       Icons.location_on,
                       'Address',
                       user.address ?? 'Not provided',
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildInfoTile(
                       Icons.calendar_today,
                       'Member Since',
                       _formatDate(user.createdAt),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     if (user.lastLoginAt != null)
                       _buildInfoTile(
                         Icons.access_time,
                         'Last Login',
                         _formatDate(user.lastLoginAt!),
+                        Theme.of(context).colorScheme.primary,
                       ),
                   ],
                 ),
@@ -142,30 +157,42 @@ class ProfileScreen extends StatelessWidget {
                       'Location Services',
                       'Manage location permissions',
                       () => _checkLocation(context),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildActionTile(
                       Icons.wifi,
                       'Network Status',
                       'Check connectivity',
                       () => _showNetworkStatus(context),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildActionTile(
                       Icons.camera,
-                      'Camera Access',
-                      'Test camera functionality',
-                      () => _testCamera(context),
+                      'Update Profile Picture',
+                      'Use camera or gallery to update your photo',
+                      () => _showImagePickerOptions(context),
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                    _buildActionTile(
+                      Icons.shopping_bag,
+                      'My Orders',
+                      'View your order history',
+                      () => Navigator.pushNamed(context, '/orders'),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildActionTile(
                       Icons.settings,
                       'Settings',
                       'App settings and preferences',
                       () => Navigator.pushNamed(context, '/settings'),
+                      Theme.of(context).colorScheme.primary,
                     ),
                     _buildActionTile(
                       Icons.help,
                       'Help & Support',
                       'Get help and support',
                       () => Navigator.pushNamed(context, '/help'),
+                      Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -175,17 +202,17 @@ class ProfileScreen extends StatelessWidget {
                 // Logout Button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child:                   ElevatedButton(
                     onPressed: () => _showLogoutDialog(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.errorColor,
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: const Text(
                       'Logout',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -219,12 +246,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTile(IconData icon, String title, String subtitle) {
+  Widget _buildInfoTile(IconData icon, String title, String subtitle, Color iconColor) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.primaryColor),
+          Icon(icon, color: iconColor),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -250,14 +277,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionTile(IconData icon, String title, String subtitle, VoidCallback onTap) {
+  Widget _buildActionTile(IconData icon, String title, String subtitle, VoidCallback onTap, Color iconColor) {
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
           children: [
-            Icon(icon, color: AppTheme.primaryColor),
+            Icon(icon, color: iconColor),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -289,62 +316,156 @@ class ProfileScreen extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _showImageOptions(BuildContext context) {
+  /// Show bottom sheet with camera and gallery options
+  void _showImagePickerOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
         return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take Photo'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _takePhoto(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _chooseFromGallery(context);
-                },
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Text(
+                  'Choose Profile Picture',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                
+                // Camera Option
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  title: const Text('Take Photo'),
+                  subtitle: const Text('Use camera to capture a new photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openCamera(context);
+                  },
+                ),
+                
+                // Gallery Option
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.photo_library,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                  title: const Text('Choose from Gallery'),
+                  subtitle: const Text('Select an existing photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImageFromGallery(context);
+                  },
+                ),
+                
+                const SizedBox(height: 10),
+                
+                // Cancel Button
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  void _takePhoto(BuildContext context) async {
+  /// Open camera to capture profile picture
+  Future<void> _openCamera(BuildContext context) async {
     try {
-      final cameras = await availableCameras();
-      if (cameras.isNotEmpty) {
+      // Navigate to camera capture screen
+      final imagePath = await Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          builder: (context) => const CameraCaptureScreen(),
+        ),
+      );
+
+      // Update profile picture if photo was captured
+      if (imagePath != null && mounted) {
+        setState(() {
+          _capturedImagePath = imagePath;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Camera functionality available (Demo)'),
+            content: Text('✅ Profile picture updated from camera!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Camera error: ${e.toString()}'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Camera error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 
-  void _chooseFromGallery(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Gallery selection would be implemented here (Demo)'),
-      ),
-    );
+  /// Pick image from gallery
+  Future<void> _pickImageFromGallery(BuildContext context) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          _capturedImagePath = image.path;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Profile picture updated from gallery!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gallery error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   void _checkLocation(BuildContext context) {
@@ -387,31 +508,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _testCamera(BuildContext context) async {
-    try {
-      final cameras = await availableCameras();
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Camera Status'),
-          content: Text('Found ${cameras.length} camera(s)'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Camera error: ${e.toString()}'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
-    }
-  }
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(
@@ -433,9 +529,9 @@ class ProfileScreen extends StatelessWidget {
                 Navigator.of(context).pop();
                 Navigator.of(context).pushReplacementNamed('/login');
               },
-              child: const Text(
+              child: Text(
                 'Logout',
-                style: TextStyle(color: AppTheme.errorColor),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],

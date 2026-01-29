@@ -6,6 +6,7 @@ import 'providers/app_state.dart';
 import 'providers/perfume_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/connectivity_provider.dart';
+import 'providers/sensor_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -16,6 +17,8 @@ import 'screens/wishlist/wishlist_screen.dart';
 
 import 'screens/settings/settings_screen.dart';
 import 'screens/help/help_screen.dart';
+import 'screens/sensors/sensor_demo_screen.dart';
+import 'screens/orders/orders_screen.dart';
 import 'utils/theme.dart';
 
 
@@ -44,6 +47,7 @@ class PerfumeStoreApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PerfumeProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => SensorProvider()),
         // Note: Cart provider is now part of AppState provider
 
       ],
@@ -51,9 +55,9 @@ class PerfumeStoreApp extends StatelessWidget {
         builder: (context, appState, _) {
           return MaterialApp(
             title: 'Aura Scents',
-            themeMode: ThemeMode.system,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            themeMode: appState.themeMode,
+            theme: MaterialTheme(TextTheme()).light(),
+            darkTheme: MaterialTheme(TextTheme()).dark(),
             debugShowCheckedModeBanner: false,
             home: const SplashScreen(),
             routes: {
@@ -62,8 +66,10 @@ class PerfumeStoreApp extends StatelessWidget {
               '/profile': (context) => const ProfileScreen(),
               '/cart': (context) => const CartScreen(),
               '/wishlist': (context) => const WishlistScreen(),
+              '/orders': (context) => const OrdersScreen(),
               '/settings': (context) => const SettingsScreen(),
               '/help': (context) => const HelpScreen(),
+              '/sensors': (context) => const SensorDemoScreen(),
             },
             onGenerateRoute: (settings) {
               if (settings.name == '/perfume-detail') {

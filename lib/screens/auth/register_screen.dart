@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import '../../utils/theme.dart';
+import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(appState.errorMessage ?? 'Registration failed'),
-            backgroundColor: AppTheme.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         title: const Text('Create Account'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: AppTheme.primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

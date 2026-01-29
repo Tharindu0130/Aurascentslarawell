@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import '../../utils/theme.dart';
+import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -11,14 +11,6 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
       ),
       body: Consumer<AppState>(
         builder: (context, appState, child) {
@@ -43,12 +35,13 @@ class SettingsScreen extends StatelessWidget {
               
               const Divider(),
               
-              // Dark Mode (System-based)
-              SwitchListTile(
-                title: const Text('Dark Mode'),
-                subtitle: const Text('Use system theme'),
-                value: false,
-                onChanged: (bool value) {},
+              // Theme Mode Selection
+              ListTile(
+                leading: const Icon(Icons.brightness_6),
+                title: const Text('Theme Mode'),
+                subtitle: Text(_getThemeModeText(appState.themeMode)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () => _showThemeModeDialog(context, appState),
               ),
               
               const Divider(),
@@ -89,6 +82,18 @@ class SettingsScreen extends StatelessWidget {
               
               const Divider(),
               
+              // Sensor Demo
+              ListTile(
+                leading: Icon(Icons.sensors, color: Theme.of(context).colorScheme.primary),
+                title: const Text('Sensor Demo'),
+                subtitle: const Text('Test accelerometer & gyroscope'),
+                onTap: () {
+                  Navigator.of(context).pushNamed('/sensors');
+                },
+              ),
+              
+              const Divider(),
+              
               // Sign Out
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
@@ -102,6 +107,72 @@ class SettingsScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  String _getThemeModeText(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'Light Mode';
+      case ThemeMode.dark:
+        return 'Dark Mode';
+      case ThemeMode.system:
+        return 'System Default';
+    }
+  }
+
+  void _showThemeModeDialog(BuildContext context, AppState appState) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<ThemeMode>(
+                title: const Text('Light Mode'),
+                value: ThemeMode.light,
+                groupValue: appState.themeMode,
+                onChanged: (ThemeMode? value) {
+                  if (value != null) {
+                    appState.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('Dark Mode'),
+                value: ThemeMode.dark,
+                groupValue: appState.themeMode,
+                onChanged: (ThemeMode? value) {
+                  if (value != null) {
+                    appState.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('System Default'),
+                value: ThemeMode.system,
+                groupValue: appState.themeMode,
+                onChanged: (ThemeMode? value) {
+                  if (value != null) {
+                    appState.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

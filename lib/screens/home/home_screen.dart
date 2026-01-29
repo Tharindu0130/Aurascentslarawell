@@ -3,12 +3,13 @@ import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
 import '../../providers/perfume_provider.dart';
 import '../../providers/connectivity_provider.dart';
-import '../../utils/theme.dart';
+import 'package:flutter/material.dart';
 import '../../widgets/perfume_card.dart';
 import '../../widgets/category_chip.dart';
 import '../cart/cart_screen.dart';
 import '../profile/profile_screen.dart';
 import '../wishlist/wishlist_screen.dart';
+import '../orders/orders_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _HomeTab(),
           CartScreen(),
           WishlistScreen(),
+          OrdersScreen(),
           ProfileScreen(),
         ],
       ),
@@ -50,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppTheme.primaryColor,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
             unselectedItemColor: Colors.grey,
             items: [
               const BottomNavigationBarItem(
@@ -68,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: AppTheme.errorColor,
+                            color: Theme.of(context).colorScheme.error,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           constraints: const BoxConstraints(
@@ -79,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             '${appState.cartItemCount}',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -111,7 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             '${appState.wishlistItemCount}',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -120,6 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 label: 'Wishlist',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_bag),
+                label: 'Orders',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.person),
@@ -157,8 +165,8 @@ class _HomeTabState extends State<_HomeTab> {
           // App Bar
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: AppTheme.primaryColor,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -366,7 +374,7 @@ class _HomeTabState extends State<_HomeTab> {
           label,
           style: const TextStyle(
             color: Colors.white70,
-            fontSize: 10,
+            fontSize: 11,
           ),
         ),
       ],

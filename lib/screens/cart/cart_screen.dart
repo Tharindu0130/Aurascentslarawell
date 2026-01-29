@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 
 import '../../providers/app_state.dart';
-import '../../utils/theme.dart';
+import 'package:flutter/material.dart';
 import '../../widgets/cart_item_widget.dart';
 
 class CartScreen extends StatelessWidget {
@@ -15,12 +15,6 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Shopping Cart'),
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         actions: [
           Consumer<AppState>(
             builder: (context, appState, _) {
@@ -29,9 +23,11 @@ class CartScreen extends StatelessWidget {
                   onPressed: () {
                     _showClearCartDialog(context, appState);
                   },
-                  child: const Text(
+                  child: Text(
                     'Clear All',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
                 );
               }
@@ -70,10 +66,10 @@ class CartScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
                       blurRadius: 10,
                       offset: const Offset(0, -5),
                     ),
@@ -94,7 +90,7 @@ class CartScreen extends StatelessWidget {
                           child: Text(
                             '\$${appState.cartTotalAmount.toStringAsFixed(2)}',
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppTheme.primaryColor,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -152,9 +148,9 @@ class CartScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text(
+              child: Text(
                 'Clear',
-                style: TextStyle(color: AppTheme.errorColor),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],
@@ -167,41 +163,107 @@ class CartScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Checkout'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Total: \$${appState.cartTotalAmount.toStringAsFixed(2)}'),
-              const SizedBox(height: 8),
-              Text('Items: ${appState.cartItemCount}'),
-              const SizedBox(height: 16),
-              const Text('This is a demo app. In a real application, this would integrate with a payment gateway.'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Simulate order placement
-                appState.clearCart();
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Order placed successfully! (Demo)'),
-                    duration: Duration(seconds: 2),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            bool isProcessing = false;
+            
+            return AlertDialog(
+              title: const Text('Confirm Order'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Total Amount: \$${appState.cartTotalAmount.toStringAsFixed(2)}'),
+                  const SizedBox(height: 8),
+                  Text('Total Items: ${appState.cartItemCount}'),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Order Summary:',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
-              child: const Text('Place Order'),
-            ),
-          ],
+                  const SizedBox(height: 8),
+                  ...appState.cartItems.map((item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '${item.quantity}x ${item.perfume.name} - \$${item.totalPrice.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  )),
+                  if (isProcessing) ...[
+                    const SizedBox(height: 16),
+                    const LinearProgressIndicator(),
+                    const SizedBox(height: 8),
+                    const Text('Processing your order...'),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isProcessing ? null : () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: isProcessing ? null : () async {
+                    setState(() {
+                      isProcessing = true;
+                    });
+                    
+                    final success = await appState.placeOrders();
+                    
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text('Order placed successfully! Check your profile for order history.'),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.error, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(appState.errorMessage ?? 'Failed to place order. Please try again.'),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 3),
+                            action: SnackBarAction(
+                              label: 'Retry',
+                              textColor: Colors.white,
+                              onPressed: () {
+                                _showCheckoutDialog(context, appState);
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Place Order'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

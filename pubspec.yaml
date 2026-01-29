@@ -21,11 +21,22 @@ dependencies:
   # Location services
   geolocator: ^10.1.0
   
-  # Camera functionality
-  camera: ^0.10.5+5
+
   
   # Network connectivity
   connectivity_plus: ^5.0.2
+  
+  # Camera functionality  
+  camera: ^0.10.5+9
+  
+  # Image picker (gallery and camera)
+  image_picker: ^1.0.7
+  
+  # Sensor functionality
+  sensors_plus: ^5.0.1
+  
+  # Path utilities
+  path_provider: ^2.1.3
   
   # HTTP requests
   http: ^1.1.0

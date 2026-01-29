@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_item.dart';
 import '../providers/app_state.dart';
-import '../utils/theme.dart';
+import 'package:flutter/material.dart';
 
 class CartItemWidget extends StatelessWidget {
   final CartItem cartItem;
@@ -48,7 +48,7 @@ class CartItemWidget extends StatelessWidget {
                   Text(
                     cartItem.perfume.brand,
                     style: TextStyle(
-                      color: AppTheme.primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -66,9 +66,9 @@ class CartItemWidget extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '\$${cartItem.perfume.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -131,10 +131,10 @@ class CartItemWidget extends StatelessWidget {
                 // Total Price
                 Text(
                   '\$${cartItem.totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 
@@ -178,7 +178,7 @@ class CartItemWidget extends StatelessWidget {
         child: Icon(
           icon,
           size: 16,
-          color: AppTheme.primaryColor,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

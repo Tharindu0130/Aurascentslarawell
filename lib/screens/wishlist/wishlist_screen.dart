@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import '../../utils/theme.dart';
 import '../../widgets/wishlist_item_widget.dart';
 
 class WishlistScreen extends StatelessWidget {
@@ -13,12 +12,6 @@ class WishlistScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Wishlist'),
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         actions: [
           Consumer<AppState>(
             builder: (context, appState, _) {
@@ -27,9 +20,11 @@ class WishlistScreen extends StatelessWidget {
                   onPressed: () {
                     _showClearWishlistDialog(context, appState);
                   },
-                  child: const Text(
+                  child: Text(
                     'Clear All',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
                 );
               }
@@ -52,10 +47,10 @@ class WishlistScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                   ),
                 ),
                 child: Column(
@@ -65,7 +60,7 @@ class WishlistScreen extends StatelessWidget {
                       'Wishlist Summary',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -75,9 +70,9 @@ class WishlistScreen extends StatelessWidget {
                         Text('${appState.wishlistItemCount} items'),
                         Text(
                           'Total Value: \$${appState.wishlistItems.fold(0.0, (sum, item) => sum + item.perfume.price).toStringAsFixed(2)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
@@ -106,10 +101,10 @@ class WishlistScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -124,11 +119,11 @@ class WishlistScreen extends StatelessWidget {
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: const BorderSide(color: AppTheme.primaryColor),
+                            side: BorderSide(color: Theme.of(context).colorScheme.primary),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Add All to Cart',
-                            style: TextStyle(color: AppTheme.primaryColor),
+                            style: TextStyle(color: Theme.of(context).colorScheme.primary),
                           ),
                         ),
                       ),
@@ -179,9 +174,9 @@ class WishlistScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text(
+              child: Text(
                 'Clear',
-                style: TextStyle(color: AppTheme.errorColor),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],

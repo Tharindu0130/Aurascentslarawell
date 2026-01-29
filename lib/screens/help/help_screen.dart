@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../utils/theme.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
@@ -9,8 +8,6 @@ class HelpScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Help & Support'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
       ),
       body: ListView(
         children: [
@@ -40,8 +37,6 @@ class HelpScreen extends StatelessWidget {
                     icon: const Icon(Icons.email),
                     label: const Text('Email Support'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),

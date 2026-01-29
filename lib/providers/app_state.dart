@@ -7,12 +7,14 @@ import '../models/perfume.dart';
 import '../models/cart_item.dart';
 import '../models/wishlist_item.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 
 /// Central app state management using Provider
 /// Manages: User login state, Shopping cart, and Wishlist with local storage
 class AppState with ChangeNotifier {
   final SharedPreferences _prefs;
   final AuthService _authService = AuthService();
+  final ApiService _apiService = ApiService();
 
   // User Authentication State
   User? _user;
@@ -26,23 +28,14 @@ class AppState with ChangeNotifier {
   final List<WishlistItem> _wishlistItems = [];
 
   // Theme State
-  bool _isDarkTheme = false;
-
-  // Sensor Data State
-  double _accelerometerX = 0.0;
-  double _accelerometerY = 0.0;
-  double _accelerometerZ = 0.0;
-  double _gyroscopeX = 0.0;
-  double _gyroscopeY = 0.0;
-  double _gyroscopeZ = 0.0;
-  int _batteryLevel = 100;
-  bool _isCharging = false;
+  ThemeMode _themeMode = ThemeMode.system;
 
   // Constructor
   AppState(this._prefs) {
     _loadUserFromStorage();
     _loadCartFromStorage();
     _loadWishlistFromStorage();
+    _loadThemeFromStorage();
   }
 
   // ============================================================================
@@ -65,17 +58,7 @@ class AppState with ChangeNotifier {
   int get wishlistItemCount => _wishlistItems.length;
 
   // Theme Getters
-  bool get isDarkTheme => _isDarkTheme;
-
-  // Sensor Data Getters
-  double get accelerometerX => _accelerometerX;
-  double get accelerometerY => _accelerometerY;
-  double get accelerometerZ => _accelerometerZ;
-  double get gyroscopeX => _gyroscopeX;
-  double get gyroscopeY => _gyroscopeY;
-  double get gyroscopeZ => _gyroscopeZ;
-  int get batteryLevel => _batteryLevel;
-  bool get isCharging => _isCharging;
+  ThemeMode get themeMode => _themeMode;
 
   // ============================================================================
   // AUTHENTICATION METHODS
@@ -236,6 +219,79 @@ class AppState with ChangeNotifier {
       ),
     );
     return item.id.isEmpty ? 0 : item.quantity;
+  }
+
+  /// Place all orders from cart via API
+  Future<bool> placeOrders() async {
+    if (!isAuthenticated) {
+      _setError('Please login to place orders');
+      return false;
+    }
+
+    if (_cartItems.isEmpty) {
+      _setError('Your cart is empty');
+      return false;
+    }
+
+    _setLoading(true);
+    _clearError();
+
+    try {
+      int successCount = 0;
+      int failureCount = 0;
+      List<String> failedItems = [];
+
+      // Place order for each cart item
+      for (var cartItem in _cartItems) {
+        try {
+          // Get product ID from perfume ID (convert to int)
+          final productId = int.tryParse(cartItem.perfume.id);
+          
+          if (productId == null) {
+            failedItems.add(cartItem.perfume.name);
+            failureCount++;
+            continue;
+          }
+
+          // Call API to place order
+          final result = await _apiService.placeOrder(productId, cartItem.quantity);
+
+          if (result['success'] == true) {
+            successCount++;
+          } else {
+            failedItems.add(cartItem.perfume.name);
+            failureCount++;
+          }
+        } catch (e) {
+          failedItems.add(cartItem.perfume.name);
+          failureCount++;
+        }
+      }
+
+      _setLoading(false);
+
+      // If all orders succeeded, clear the cart
+      if (failureCount == 0) {
+        clearCart();
+        return true;
+      } else if (successCount > 0) {
+        // Partial success - clear successful items
+        _setError('$successCount orders placed, but $failureCount failed: ${failedItems.join(", ")}');
+        // Only keep failed items in cart
+        _cartItems.removeWhere((item) => !failedItems.contains(item.perfume.name));
+        _saveCartToStorage();
+        notifyListeners();
+        return false;
+      } else {
+        // All failed
+        _setError('Failed to place orders. Please check your connection and try again.');
+        return false;
+      }
+    } catch (e) {
+      _setError('Order placement failed: ${e.toString()}');
+      _setLoading(false);
+      return false;
+    }
   }
 
   // ============================================================================
@@ -399,48 +455,42 @@ class AppState with ChangeNotifier {
   // THEME METHODS
   // ============================================================================
 
+  /// Load theme preference from storage
+  void _loadThemeFromStorage() {
+    final themeModeString = _prefs.getString('theme_mode') ?? 'system';
+    switch (themeModeString) {
+      case 'light':
+        _themeMode = ThemeMode.light;
+        break;
+      case 'dark':
+        _themeMode = ThemeMode.dark;
+        break;
+      default:
+        _themeMode = ThemeMode.system;
+    }
+  }
+
+  /// Save theme preference to storage
+  Future<void> _saveThemeToStorage() async {
+    await _prefs.setString('theme_mode', _themeMode.name);
+  }
+
+  /// Set theme mode
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    await _saveThemeToStorage();
+    notifyListeners();
+  }
+
   /// Toggle theme between light and dark
-  void toggleTheme() {
-    _isDarkTheme = !_isDarkTheme;
-    notifyListeners();
-  }
-
-  /// Set theme to dark or light
-  void setTheme(bool isDark) {
-    _isDarkTheme = isDark;
-    notifyListeners();
-  }
-
-  // ============================================================================
-  // SENSOR DATA METHODS
-  // ============================================================================
-
-  /// Update accelerometer data
-  void updateAccelerometer(double x, double y, double z) {
-    _accelerometerX = x;
-    _accelerometerY = y;
-    _accelerometerZ = z;
-    notifyListeners();
-  }
-
-  /// Update gyroscope data
-  void updateGyroscope(double x, double y, double z) {
-    _gyroscopeX = x;
-    _gyroscopeY = y;
-    _gyroscopeZ = z;
-    notifyListeners();
-  }
-
-  /// Update battery level
-  void updateBatteryLevel(int level) {
-    _batteryLevel = level;
-    notifyListeners();
-  }
-
-  /// Update charging status
-  void updateChargingStatus(bool isCharging) {
-    _isCharging = isCharging;
-    notifyListeners();
+  Future<void> toggleTheme() async {
+    if (_themeMode == ThemeMode.light) {
+      await setThemeMode(ThemeMode.dark);
+    } else if (_themeMode == ThemeMode.dark) {
+      await setThemeMode(ThemeMode.system);
+    } else {
+      await setThemeMode(ThemeMode.light);
+    }
   }
 
   // ============================================================================

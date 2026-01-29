@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../providers/perfume_provider.dart';
-import '../utils/theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -29,43 +28,47 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeIn,
+      ),
+    );
 
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _animationController.forward();
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
-    // Wait a bit before initializing to avoid build conflicts
+    // Small delay to avoid build conflicts
     await Future.delayed(const Duration(milliseconds: 100));
-    
-    // Load perfumes data
+
+    // Load initial data
     if (mounted) {
       await context.read<PerfumeProvider>().loadPerfumes();
     }
-    
-    // Wait for animation to complete
+
+    // Let splash animation complete
     await Future.delayed(const Duration(seconds: 3));
-    
-    if (mounted) {
-      final appState = context.read<AppState>();
-      
-      if (appState.isAuthenticated) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/login');
-      }
+
+    if (!mounted) return;
+
+    final appState = context.read<AppState>();
+
+    if (appState.isAuthenticated) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
 
@@ -78,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryColor,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -91,11 +94,12 @@ class _SplashScreenState extends State<SplashScreen>
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
-                      width: 120,
-                      height: 120,
+                      width: 150,
+                      height: 150,
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(60),
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.2),
@@ -104,10 +108,17 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.local_florist,
-                        size: 60,
-                        color: AppTheme.primaryColor,
+                      child: Image.asset(
+                        'assets/images/logo-navbar.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('❌ ERROR loading logo: $error');
+                          return const Icon(
+                            Icons.local_florist,
+                            size: 60,
+                            color: Colors.orange,
+                          );
+                        },
                       ),
                     ),
                   ),

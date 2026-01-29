@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/perfume.dart';
 import '../providers/app_state.dart';
-import '../utils/theme.dart';
+import 'cached_perfume_image.dart';
 
 class PerfumeCard extends StatelessWidget {
   final Perfume perfume;
@@ -30,22 +30,23 @@ class PerfumeCard extends StatelessWidget {
             // Image
             Expanded(
               flex: 3,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+              child: Stack(
+                children: [
+                  // Perfume Image
+                  Positioned.fill(
+                    child: CachedPerfumeImage(
+                      imageUrl: perfume.imageUrl,
+                      fit: BoxFit.cover,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
                   ),
-                  image: DecorationImage(
-                    image: NetworkImage(perfume.imageUrl),
-                    fit: BoxFit.cover,
-                    onError: (exception, stackTrace) {
-                      // Handle image loading error
-                    },
-                  ),
-                ),
-                child: Stack(
+                  
+                  // Overlay Controls
+                  Positioned.fill(
+                    child: Stack(
                   children: [
                     // Wishlist Button
                     Positioned(
@@ -120,7 +121,7 @@ class PerfumeCard extends StatelessWidget {
                               ),
                               child: Icon(
                                 isInCart ? Icons.shopping_cart : Icons.shopping_cart_outlined,
-                                color: isInCart ? AppTheme.primaryColor : Colors.grey[600],
+                                color: isInCart ? Theme.of(context).colorScheme.primary : Colors.grey[600]!,
                                 size: 20,
                               ),
                             ),
@@ -147,14 +148,16 @@ class PerfumeCard extends StatelessWidget {
                             'Out of Stock',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
-                  ],
-                ),
+                    ],
+                  ),
+                  ),
+                ],
               ),
             ),
             
@@ -162,16 +165,17 @@ class PerfumeCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Brand
                     Text(
                       perfume.brand,
                       style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -181,14 +185,16 @@ class PerfumeCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     
                     // Name
-                    Text(
-                      perfume.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        perfume.name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     
                     const SizedBox(height: 4),
@@ -203,7 +209,7 @@ class PerfumeCard extends StatelessWidget {
                                   ? Icons.star
                                   : Icons.star_border,
                               color: Colors.amber,
-                              size: 12,
+                              size: 11,
                             );
                           }),
                         ),
@@ -211,22 +217,22 @@ class PerfumeCard extends StatelessWidget {
                         Text(
                           '(${perfume.reviewCount})',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 11,
                             color: Colors.grey[600],
                           ),
                         ),
                       ],
                     ),
                     
-                    const Spacer(),
+                    const SizedBox(height: 6),
                     
                     // Price
                     Text(
                       '\$${perfume.price.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],

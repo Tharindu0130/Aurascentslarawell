@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/perfume.dart';
 import '../../providers/app_state.dart';
-import '../../utils/theme.dart';
+import '../../widgets/cached_perfume_image.dart';
 
 class PerfumeDetailScreen extends StatelessWidget {
   final dynamic perfume;
@@ -20,7 +20,10 @@ class PerfumeDetailScreen extends StatelessWidget {
             expandedHeight: 300,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -28,26 +31,26 @@ class PerfumeDetailScreen extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'perfume-${perfumeData.id}',
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(perfumeData.imageUrl),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedPerfumeImage(
+                      imageUrl: perfumeData.imageUrl,
                       fit: BoxFit.cover,
-                      onError: (exception, stackTrace) {},
                     ),
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.7),
-                        ],
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -60,8 +63,8 @@ class PerfumeDetailScreen extends StatelessWidget {
                           ? Icons.favorite
                           : Icons.favorite_border,
                       color: appState.isInWishlist(perfumeData.id)
-                          ? Colors.red
-                          : Colors.white,
+                          ? Theme.of(context).colorScheme.error
+                          : Theme.of(context).colorScheme.onPrimary,
                     ),
                     onPressed: () {
                       if (appState.isInWishlist(perfumeData.id)) {
@@ -97,7 +100,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                   Text(
                     perfumeData.brand,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -139,7 +142,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                       Text(
                         '\$${perfumeData.price.toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: AppTheme.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -203,16 +206,16 @@ class PerfumeDetailScreen extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.secondaryColor.withOpacity(0.1),
+                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppTheme.secondaryColor.withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
                           ),
                         ),
                         child: Text(
                           note,
                           style: TextStyle(
-                            color: AppTheme.secondaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -230,10 +233,10 @@ class PerfumeDetailScreen extends StatelessWidget {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -250,7 +253,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                   // Quantity Controls
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.primaryColor),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -266,7 +269,7 @@ class PerfumeDetailScreen extends StatelessWidget {
                           },
                           icon: Icon(
                             quantity > 1 ? Icons.remove : Icons.delete,
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         Text(
@@ -280,9 +283,9 @@ class PerfumeDetailScreen extends StatelessWidget {
                           onPressed: () {
                             appState.updateCartQuantity(perfumeData.id, quantity + 1);
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.add,
-                            color: AppTheme.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
