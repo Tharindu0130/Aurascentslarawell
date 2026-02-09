@@ -222,7 +222,10 @@ class AppState with ChangeNotifier {
   }
 
   /// Place all orders from cart via API
-  Future<bool> placeOrders() async {
+  Future<bool> placeOrders({
+    String paymentMethod = 'credit_card',
+    String deliveryMethod = 'home_delivery',
+  }) async {
     if (!isAuthenticated) {
       _setError('Please login to place orders');
       return false;
@@ -237,54 +240,57 @@ class AppState with ChangeNotifier {
     _clearError();
 
     try {
-      int successCount = 0;
-      int failureCount = 0;
-      List<String> failedItems = [];
+      // Make sure API service has loaded the auth token
+      await _apiService.init();
 
-      // Place order for each cart item
-      for (var cartItem in _cartItems) {
-        try {
-          // Get product ID from perfume ID (convert to int)
-          final productId = int.tryParse(cartItem.perfume.id);
-          
-          if (productId == null) {
-            failedItems.add(cartItem.perfume.name);
-            failureCount++;
-            continue;
-          }
-
-          // Call API to place order
-          final result = await _apiService.placeOrder(productId, cartItem.quantity);
-
-          if (result['success'] == true) {
-            successCount++;
-          } else {
-            failedItems.add(cartItem.perfume.name);
-            failureCount++;
-          }
-        } catch (e) {
-          failedItems.add(cartItem.perfume.name);
-          failureCount++;
-        }
+      // Prepare user shipping info
+      String? firstName;
+      String? lastName;
+      String? phone;
+      String? address;
+      
+      if (_user != null) {
+        final nameParts = _user!.name.trim().split(' ');
+        firstName = nameParts.isNotEmpty ? nameParts[0] : null;
+        lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : null;
+        phone = _user!.phoneNumber;
+        address = _user!.address;
       }
+
+      // Prepare cart items array for backend
+      List<Map<String, dynamic>> cartItemsData = _cartItems.map((cartItem) {
+        final productId = int.tryParse(cartItem.perfume.id) ?? 0;
+        return {
+          'product_id': productId,
+          'quantity': cartItem.quantity,
+        };
+      }).toList();
+
+      // Place single order with all cart items
+      final result = await _apiService.placeOrder(
+        cartItems: cartItemsData,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        address: address,
+        paymentMethod: paymentMethod,
+        deliveryMethod: deliveryMethod,
+      );
 
       _setLoading(false);
 
-      // If all orders succeeded, clear the cart
-      if (failureCount == 0) {
+      if (result['success'] == true) {
         clearCart();
         return true;
-      } else if (successCount > 0) {
-        // Partial success - clear successful items
-        _setError('$successCount orders placed, but $failureCount failed: ${failedItems.join(", ")}');
-        // Only keep failed items in cart
-        _cartItems.removeWhere((item) => !failedItems.contains(item.perfume.name));
-        _saveCartToStorage();
-        notifyListeners();
-        return false;
       } else {
-        // All failed
-        _setError('Failed to place orders. Please check your connection and try again.');
+        final errorMsg = result['message'] ?? 'Failed to place order';
+        if (errorMsg.contains('Connection error') || errorMsg.contains('Connection refused')) {
+          _setError('Cannot connect to server. Please check your network connection.');
+        } else if (errorMsg.contains('Session expired') || errorMsg.contains('Unauthenticated')) {
+          _setError('Your session has expired. Please login again.');
+        } else {
+          _setError('Failed to place orders: $errorMsg');
+        }
         return false;
       }
     } catch (e) {

@@ -14,7 +14,12 @@ class CartScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping Cart'),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         actions: [
           Consumer<AppState>(
             builder: (context, appState, _) {
@@ -166,38 +171,96 @@ class CartScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             bool isProcessing = false;
+            String selectedPaymentMethod = 'credit_card';
+            String selectedDeliveryMethod = 'home_delivery';
             
             return AlertDialog(
               title: const Text('Confirm Order'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Total Amount: \$${appState.cartTotalAmount.toStringAsFixed(2)}'),
-                  const SizedBox(height: 8),
-                  Text('Total Items: ${appState.cartItemCount}'),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Order Summary:',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...appState.cartItems.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      '${item.quantity}x ${item.perfume.name} - \$${item.totalPrice.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  )),
-                  if (isProcessing) ...[
-                    const SizedBox(height: 16),
-                    const LinearProgressIndicator(),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Total Amount: \$${appState.cartTotalAmount.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
-                    const Text('Processing your order...'),
+                    Text('Total Items: ${appState.cartItemCount}'),
+                    const SizedBox(height: 16),
+                    
+                    // Payment Method Dropdown
+                    Text(
+                      'Payment Method:',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedPaymentMethod,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'credit_card', child: Text('Credit Card')),
+                        DropdownMenuItem(value: 'paypal', child: Text('PayPal')),
+                        DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPaymentMethod = value!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Delivery Method Dropdown
+                    Text(
+                      'Delivery Method:',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedDeliveryMethod,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'home_delivery', child: Text('Home Delivery')),
+                        DropdownMenuItem(value: 'store_pickup', child: Text('Store Pickup')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedDeliveryMethod = value!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    Text(
+                      'Order Summary:',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...appState.cartItems.map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${item.quantity}x ${item.perfume.name} - \$${item.totalPrice.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    )),
+                    if (isProcessing) ...[
+                      const SizedBox(height: 16),
+                      const LinearProgressIndicator(),
+                      const SizedBox(height: 8),
+                      const Text('Processing your order...'),
+                    ],
                   ],
-                ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -212,27 +275,38 @@ class CartScreen extends StatelessWidget {
                       isProcessing = true;
                     });
                     
-                    final success = await appState.placeOrders();
+                    final success = await appState.placeOrders(
+                      paymentMethod: selectedPaymentMethod,
+                      deliveryMethod: selectedDeliveryMethod,
+                    );
                     
                     if (context.mounted) {
                       Navigator.of(context).pop();
                       
                       if (success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(Icons.check_circle, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text('Order placed successfully! Check your profile for order history.'),
+                        // Navigate to Orders screen immediately
+                        Navigator.of(context).pushNamed('/orders');
+                        
+                        // Show success message after navigation
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text('Order placed successfully!'),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 3),
-                          ),
-                        );
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -251,7 +325,12 @@ class CartScreen extends StatelessWidget {
                               label: 'Retry',
                               textColor: Colors.white,
                               onPressed: () {
-                                _showCheckoutDialog(context, appState);
+                                // Fixed context issue - use a delay
+                                Future.delayed(const Duration(milliseconds: 100), () {
+                                  if (context.mounted) {
+                                    _showCheckoutDialog(context, appState);
+                                  }
+                                });
                               },
                             ),
                           ),

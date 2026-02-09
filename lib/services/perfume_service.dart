@@ -11,7 +11,13 @@ class PerfumeService {
   /// Get all perfumes from backend API (with offline JSON fallback)
   Future<List<Perfume>> getAllPerfumes() async {
     try {
-      // Try to fetch from API first
+      // Test backend connectivity first
+      final isBackendReachable = await _apiService.pingBackend();
+      if (!isBackendReachable) {
+        return await _loadFromLocalJson();
+      }
+
+      // Try to fetch from API
       final response = await _apiService.getProducts(limit: 50);
       
       if (response['success'] == true && response['data'] != null) {
@@ -73,7 +79,21 @@ class PerfumeService {
   /// Get single perfume by ID
   Future<Perfume?> getPerfumeById(String id) async {
     try {
-      // Try to fetch from API first
+      // Test backend connectivity first
+      final isBackendReachable = await _apiService.pingBackend();
+      if (!isBackendReachable) {
+        // Check cache first
+        if (_cachedPerfumes != null) {
+          for (var perfume in _cachedPerfumes!) {
+            if (perfume.id == id) {
+              return perfume;
+            }
+          }
+        }
+        return null;
+      }
+
+      // Try to fetch from API
       final productData = await _apiService.getProduct(int.parse(id));
       
       // Convert to Perfume model
@@ -107,6 +127,17 @@ class PerfumeService {
   /// Search perfumes
   Future<List<Perfume>> searchPerfumes(String query) async {
     try {
+      // Test backend connectivity first
+      final isBackendReachable = await _apiService.pingBackend();
+      if (!isBackendReachable) {
+        // Fallback to local search
+        final allPerfumes = await getAllPerfumes();
+        return allPerfumes.where((p) => 
+          p.name.toLowerCase().contains(query.toLowerCase()) ||
+          p.brand.toLowerCase().contains(query.toLowerCase())
+        ).toList();
+      }
+
       final response = await _apiService.searchProducts(query);
       
       if (response['success'] == true && response['data'] != null) {

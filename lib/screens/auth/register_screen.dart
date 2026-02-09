@@ -70,10 +70,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 20),
                 
-                // Title
+                // Logo + Title
                 Center(
                   child: Column(
                     children: [
+                      // Logo - changes based on theme
+                      Image.asset(
+                        Theme.of(context).brightness == Brightness.dark
+                            ? 'assets/images/logo-navbar_login.png'
+                            : 'assets/images/logo-navbar.png',
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.local_florist,
+                            size: 80,
+                            color: Theme.of(context).colorScheme.primary,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      
                       Text(
                         'Join Perfume Store',
                         style: Theme.of(context).textTheme.headlineMedium,

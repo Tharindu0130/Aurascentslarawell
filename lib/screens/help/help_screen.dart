@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../debug_connection_screen.dart';
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
@@ -11,6 +12,55 @@ class HelpScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          // Backend Connection Check
+          Card(
+            margin: const EdgeInsets.all(16),
+            color: Colors.red[50],
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.red[700]),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Connection Issues?',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'If products won\'t load or orders fail, check your backend connection.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DebugConnectionScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.network_check),
+                    label: const Text('Check Backend Connection'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[700],
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Contact Support Section
           Card(
             margin: const EdgeInsets.all(16),

@@ -112,7 +112,6 @@ class _SplashScreenState extends State<SplashScreen>
                         'assets/images/logo-navbar.png',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
-                          print('❌ ERROR loading logo: $error');
                           return const Icon(
                             Icons.local_florist,
                             size: 60,

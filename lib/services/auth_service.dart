@@ -31,12 +31,28 @@ class AuthService {
     }
   }
 
-  /// Register new user (if backend supports registration)
+  /// Register new user
   Future<User?> register(String name, String email, String password) async {
     try {
-      // Note: You might need to add a register endpoint to your Laravel API
-      // For now, returning a mock user or throwing an exception
-      throw Exception('Registration not implemented in backend API yet');
+      // Call the register endpoint in api_service
+      final response = await _apiService.register(name, email, password);
+      
+      // Check if registration was successful
+      if (response['success'] == true && response['data'] != null) {
+        final userData = response['data']['user'];
+        
+        // Convert Laravel user to Flutter User model
+        return User(
+          id: userData['id'].toString(),
+          email: userData['email'],
+          name: userData['name'],
+          profileImageUrl: userData['profile_photo_url'],
+          createdAt: DateTime.parse(userData['created_at'] ?? DateTime.now().toIso8601String()),
+          lastLoginAt: DateTime.now(),
+        );
+      }
+      
+      return null;
     } catch (e) {
       throw Exception('Registration failed: ${e.toString()}');
     }

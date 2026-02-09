@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import 'package:flutter/material.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -27,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final appState = context.read<AppState>();
-      
+
       final success = await appState.login(
         _emailController.text.trim(),
         _passwordController.text,
@@ -58,30 +57,38 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 60),
-                
-                // Logo and Title
+
+                /// LOGO + TITLE
                 Center(
                   child: Column(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: const Icon(
-                          Icons.local_florist,
-                          size: 40,
-                          color: Colors.white,
-                        ),
+                      // Logo - changes based on theme
+                      Image.asset(
+                        Theme.of(context).brightness == Brightness.dark
+                            ? 'assets/images/logo-navbar_login.png'
+                            : 'assets/images/logo-navbar.png',
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          debugPrint('❌ ERROR loading logo: $error');
+                          return Icon(
+                            Icons.local_florist,
+                            size: 80,
+                            color: Theme.of(context).colorScheme.primary,
+                          );
+                        },
                       ),
-                      const SizedBox(height: 20),
+
+                      const SizedBox(height: 24),
+
                       Text(
                         'Welcome Back',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
+
                       const SizedBox(height: 8),
+
                       Text(
                         'Sign in to your account',
                         style: Theme.of(context).textTheme.bodyMedium,
@@ -89,10 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 50),
-                
-                // Email Field
+
+                /// EMAIL
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -104,16 +111,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 20),
-                
-                // Password Field
+
+                /// PASSWORD
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -122,7 +130,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -141,31 +151,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 30),
-                
-                // Login Button
+
+                /// LOGIN BUTTON
                 Consumer<AppState>(
                   builder: (context, appState, _) {
                     return ElevatedButton(
                       onPressed: appState.isLoading ? null : _login,
                       child: appState.isLoading
                           ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
                           : const Text('Sign In'),
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 30),
-                
-                // Register Link
+
+                /// REGISTER
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -174,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
+                            builder: (_) => const RegisterScreen(),
                           ),
                         );
                       },
